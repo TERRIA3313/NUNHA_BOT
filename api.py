@@ -8,7 +8,6 @@ import datetime
 
 key = "Secret"
 
-
 class StoneView(View):
     def __init__(self, *items: Item):
         super().__init__(*items, timeout=None)
@@ -250,7 +249,6 @@ def Cutting(data: str, chance: int):
                 if chance_data != 75:
                     chance_data += 10
             cutting_option = False
-                
         else:
             tmp += i
     chance_data = str(chance_data) + "%"
@@ -267,8 +265,8 @@ def ReplaceStr(data: str):
         elif i == "2":
             tmp += "\u001b[1;31m◆\u001b[0m"
     return tmp
-    
-    
+
+
 def auction(input_gold):
     target = input_gold
     gold = int(target * 0.83 - 1)
@@ -316,6 +314,16 @@ def get_gold(level_data: float):
             gold += 1000
             gold_list.append("(어비스 레이드)아르고스")
 
+        # 볼다이크
+        if 1600 <= level_data:
+            if 1620 <= level_data:
+                gold += 11000
+                gold_list.append("(어비스 던전)볼다이크 하드")
+            else:
+                gold += 7500
+                gold_list.append("(어비스 던전)볼다이크 노말")
+            raid_counter -= 1
+
         # 일리아칸
         if 1580 <= level_data:
             if 1600 <= level_data:
@@ -324,6 +332,16 @@ def get_gold(level_data: float):
             elif 1580 <= level_data < 1600:
                 gold += 5500
                 gold_list.append("(군단장 레이드)일리아칸 노말")
+            raid_counter -= 1
+
+        # 카양겔
+        if 1540 <= level_data:
+            if 1580 <= level_data:
+                gold += 5500
+                gold_list.append("(어비스 던전)카양겔 하드")
+            else:
+                gold += 4500
+                gold_list.append("(어비스 던전)카양겔 노말")
             raid_counter -= 1
 
         # 아브렐슈드
@@ -351,7 +369,7 @@ def get_gold(level_data: float):
             raid_counter -= 1
 
         # 쿠크세이튼
-        if 1475 <= level_data:
+        if 1475 <= level_data and raid_counter > 0:
             gold += 4500
             gold_list.append("(군단장 레이드)쿠크세이튼 노말")
             raid_counter -= 1
@@ -382,7 +400,7 @@ def get_job(key, name):
     out_list = []
     url = "https://developer-lostark.game.onstove.com/armories/characters/" + name + "/profiles"
     header = {"accept": "application/json", "authorization": key}
-    req = requests.get(url=url, headers=header)
+    req = requests.get(url=url, headers=header, verify=False)
     if req.status_code == 200:
         data = req.json()
         if data != None:
@@ -394,7 +412,7 @@ def get_level(key, name, usr_server: str):
     out_list = []
     url = "https://developer-lostark.game.onstove.com/characters/" + name + "/siblings"
     header = {"accept": "application/json", "authorization": key}
-    req = requests.get(url=url, headers=header).json()
+    req = requests.get(url=url, headers=header, verify=False).json()
     for i in req:
         if i["ServerName"] == usr_server:
             character_name = i["CharacterName"]
@@ -411,7 +429,7 @@ def weekly_gold(name):
     header = {"accept": "application/json", "authorization": key}
     out_text = ">>> **" + name + "님의 주간 원정대 수입**\n" + name + "님의 주간 예상 원정대 수입 (레벨 순 상위 6개)은 "
     gold = 0
-    req = requests.get(url=url, headers=header)
+    req = requests.get(url=url, headers=header, verify=False)
     if req.status_code == 200:
         data = req.json()
         if data != None:
@@ -430,7 +448,6 @@ def weekly_gold(name):
             return out_text, False
         
     return "0", True
-    
 
 
 def oreha_in_market(key):
@@ -444,7 +461,7 @@ def oreha_in_market(key):
         "SortCondition": "ASC"
     }
     url = "https://developer-lostark.game.onstove.com/markets/items"
-    req = requests.post(url=url, headers=header, data=value)
+    req = requests.post(url=url, headers=header, data=value, verify=False)
     data = req.json()
     for i in data["Items"]:
         tmp_list = [i['Name'], i['Icon'], i['YDayAvgPrice'], i['RecentPrice'], i['CurrentMinPrice']]
@@ -617,7 +634,7 @@ def Character_search(name: str):
     default_url = "https://developer-lostark.game.onstove.com/armories/characters/"
     url = default_url + name + "/profiles"
     header = {"accept": "application/json", "authorization": key}
-    req = requests.get(url=url, headers=header)
+    req = requests.get(url=url, headers=header, verify=False)
     if req.status_code == 200:
         json_data = req.json()
         image = json_data["CharacterImage"]       
